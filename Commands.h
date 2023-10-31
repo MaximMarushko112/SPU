@@ -1,6 +1,9 @@
 #ifndef COMMANDS_H_INCLUDED
 #define COMMANDS_H_INCLUDED
 
+typedef int Commands_t;
+typedef unsigned char Registr_code_t;
+
 enum commands {
     HLT = -1,
     PUSH = 17,

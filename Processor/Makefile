@@ -11,16 +11,19 @@ CFLAGS=-c -Wall -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfl
 all: Processor.exe
 
 
-Processor.exe: Processor.o Processor_funcs.o ../Stack.o
+Processor.exe: Processor.o Processor_funcs.o ../Stack.o ../Text_funcs.o
 	$(CC) $^ -o $@
 
-Processor_funcs.o: Processor_funcs.cpp Processor_funcs.h
+Processor_funcs.o: Processor_funcs.cpp Processor_funcs.h ../Commands.h ../Text_funcs.h ../Stack.h
 	$(CC) $(CFLAGS) $<
 
 Processor.o: Processor.cpp Processor_funcs.h
 	$(CC) $(CFLAGS) $<
 
 ../Stack.o: ../Stack.cpp ../Stack.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+../Text_funcs.o: ../Text_funcs.cpp ../Text_funcs.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean

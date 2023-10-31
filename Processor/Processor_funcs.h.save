@@ -3,16 +3,24 @@
 
 #include "../Commands.h"
 #include "../Stack.h"
+#include "../Text_funcs.h"
 
 struct SPU {
     struct Stack stack;
     Elem_t registrs[NREG];
-
-}
+    size_t instructions_len;
+    char* instructions;
+    size_t id;
+    size_t 
+};
 
 int processing(char* byte_code);
 
-int processor_push(FILE* byte_code, struct Stack* SPU);
+int processor_push(FILE* byte_code, struct SPU* SPU);
+
+int processor_pushr(FILE* byte_code, struct SPU* SPU);
+
+int processor_pop(FILE* byte_code, struct SPU* SPU);
 
 void processor_in(struct SPU* SPU);
 

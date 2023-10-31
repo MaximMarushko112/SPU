@@ -11,56 +11,57 @@ int assembler_translate(const char* input_name, const char* output_name) {
     assert(output_name != NULL);
 
     FILE* assembler_code = fopen(input_name, "r");
-    FILE* byte_code      = fopen(output_name, "w");
+    FILE* byte_code      = fopen(output_name, "wb");
     char command[10] = "";
 
     while (fscanf(assembler_code, "%s", command) != EOF) {
         if (strcmp(command, "push") == 0) {
-            if (translate_push(assembler_code, byte_code) == 1) {
+            if (translate_push(assembler_code, byte_code, PUSH) == 1) {
                 return 1;
             }
         }
         else if (strcmp(command, "pushr") == 0) {
-            if (translate_pushr(assembler_code, byte_code) == 1) {
+            if (translate_pushr(assembler_code, byte_code, PUSHR) == 1) {
                 return 1;
             }
         }
         else if (strcmp(command, "pop") == 0) {
-            if (translate_pop(assembler_code, byte_code) == 1) {
+            if (translate_pop(assembler_code, byte_code, POP) == 1) {
                 return 1;
             }
         }
+
         else if (strcmp(command, "in") == 0) {
-            translate_in(byte_code);
+            translate_in(byte_code, IN);
         }
         else if (strcmp(command, "out") == 0) {
-            translate_out(byte_code);
+            translate_out(byte_code, OUT);
         }
         else if (strcmp(command, "HLT") == 0) {
-            translate_HLT(byte_code);
+            translate_HLT(byte_code, HLT);
         }
 
         else if (strcmp(command, "add") == 0) {
-            translate_add(byte_code);
+            translate_add(byte_code, ADD);
         }
         else if (strcmp(command, "sub") == 0) {
-            translate_sub(byte_code);
+            translate_sub(byte_code, SUB);
         }
         else if (strcmp(command, "mul") == 0) {
-            translate_mul(byte_code);
+            translate_mul(byte_code, MUL);
         }
         else if (strcmp(command, "div") == 0) {
-            translate_div(byte_code);
+            translate_div(byte_code, DIV);
         }
 
         else if (strcmp(command, "sqrt") == 0) {
-            translate_sqrt(byte_code);
+            translate_sqrt(byte_code, SQRT);
         }
         else if (strcmp(command, "sin") == 0) {
-            translate_sin(byte_code);
+            translate_sin(byte_code, SIN);
         }
         else if (strcmp(command, "cos") == 0) {
-            translate_cos(byte_code);
+            translate_cos(byte_code, COS);
         }
 
         else {
@@ -75,13 +76,15 @@ int assembler_translate(const char* input_name, const char* output_name) {
     return 0;
 }
 
-int translate_push(FILE* assembler_code, FILE* byte_code) {
+int translate_push(FILE* assembler_code, FILE* byte_code, Commands_t command) {
     assert(assembler_code != NULL);
     assert(byte_code != NULL);
 
     Elem_t x = 0;
-    if (fscanf(assembler_code, "%lf", &x) == 1)
-        fprintf(byte_code, "%d %lf\n", PUSH, x);
+    if (fscanf(assembler_code, "%lf", &x) == 1) {
+        fwrite(&command, sizeof(Commands_t), 1, byte_code);
+        fwrite(&x, sizeof(Elem_t), 1, byte_code);
+    }
     else {
         wrong_push();
         return 1;
@@ -90,20 +93,32 @@ int translate_push(FILE* assembler_code, FILE* byte_code) {
     return 0;
 }
 
-int translate_pushr(FILE* assembler_code, FILE* byte_code) {
+int translate_pushr(FILE* assembler_code, FILE* byte_code, Commands_t command) {
     assert(assembler_code != NULL);
     assert(byte_code != NULL);
 
     char registr[4] = "";
     fscanf(assembler_code, "%s", registr);
-    if (strcmp(registr, "rax") == 0)
-        fprintf(byte_code, "%d %d\n", PUSHR, A);
-    else if (strcmp(registr, "rbx") == 0)
-        fprintf(byte_code, "%d %d\n", PUSHR, B);
-    else if (strcmp(registr, "rcx") == 0)
-        fprintf(byte_code, "%d %d\n", PUSHR, C);
-    else if (strcmp(registr, "rdx") == 0)
-        fprintf(byte_code, "%d %d\n", PUSHR, D);
+    if (strcmp(registr, "rax") == 0) {
+        Registr_code_t registr_code = A;
+        fwrite(&command, sizeof(Commands_t), 1, byte_code);
+        fwrite(&registr_code, sizeof(Registr_code_t), 1, byte_code);
+    }
+    else if (strcmp(registr, "rbx") == 0) {
+        Registr_code_t registr_code = B;
+        fwrite(&command, sizeof(Commands_t), 1, byte_code);
+        fwrite(&registr_code, sizeof(Registr_code_t), 1, byte_code);
+    }
+    else if (strcmp(registr, "rcx") == 0) {
+        Registr_code_t registr_code = C;
+        fwrite(&command, sizeof(Commands_t), 1, byte_code);
+        fwrite(&registr_code, sizeof(Registr_code_t), 1, byte_code);
+    }
+    else if (strcmp(registr, "rdx") == 0) {
+        Registr_code_t registr_code = D;
+        fwrite(&command, sizeof(Commands_t), 1, byte_code);
+        fwrite(&registr_code, sizeof(Registr_code_t), 1, byte_code);
+    }
     else {
         wrong_pushr();
         return 1;
@@ -112,20 +127,32 @@ int translate_pushr(FILE* assembler_code, FILE* byte_code) {
     return 0;
 }
 
-int translate_pop(FILE* assembler_code, FILE* byte_code) {
+int translate_pop(FILE* assembler_code, FILE* byte_code, Commands_t command) {
     assert(assembler_code != NULL);
     assert(byte_code != NULL);
 
     char registr[4] = "";
     fscanf(assembler_code, "%s", registr);
-    if (strcmp(registr, "rax") == 0)
-        fprintf(byte_code, "%d %d\n", POP, A);
-    else if (strcmp(registr, "rbx") == 0)
-        fprintf(byte_code, "%d %d\n", POP, B);
-    else if (strcmp(registr, "rcx") == 0)
-        fprintf(byte_code, "%d %d\n", POP, C);
-    else if (strcmp(registr, "rdx") == 0)
-        fprintf(byte_code, "%d %d\n", POP, D);
+    if (strcmp(registr, "rax") == 0) {
+        Registr_code_t registr_code = A;
+        fwrite(&command, sizeof(Commands_t), 1, byte_code);
+        fwrite(&registr_code, sizeof(Registr_code_t), 1, byte_code);
+    }
+    else if (strcmp(registr, "rbx") == 0) {
+        Registr_code_t registr_code = B;
+        fwrite(&command, sizeof(Commands_t), 1, byte_code);
+        fwrite(&registr_code, sizeof(Registr_code_t), 1, byte_code);
+    }
+    else if (strcmp(registr, "rcx") == 0) {
+        Registr_code_t registr_code = C;
+        fwrite(&command, sizeof(Commands_t), 1, byte_code);
+        fwrite(&registr_code, sizeof(Registr_code_t), 1, byte_code);
+    }
+    else if (strcmp(registr, "rdx") == 0) {
+        Registr_code_t registr_code = D;
+        fwrite(&command, sizeof(Commands_t), 1, byte_code);
+        fwrite(&registr_code, sizeof(Registr_code_t), 1, byte_code);
+    }
     else {
         wrong_pop();
         return 1;
@@ -134,64 +161,64 @@ int translate_pop(FILE* assembler_code, FILE* byte_code) {
     return 0;
 }
 
-void translate_in(FILE* byte_code) {
+void translate_in(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", IN);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
-void translate_out(FILE* byte_code) {
+void translate_out(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", OUT);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
-void translate_HLT(FILE* byte_code) {
+void translate_HLT(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", HLT);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
-void translate_add(FILE* byte_code) {
+void translate_add(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", ADD);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
-void translate_sub(FILE* byte_code) {
+void translate_sub(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", SUB);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
-void translate_mul(FILE* byte_code) {
+void translate_mul(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", MUL);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
-void translate_div(FILE* byte_code) {
+void translate_div(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", DIV);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
-void translate_sqrt(FILE* byte_code) {
+void translate_sqrt(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", SQRT);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
-void translate_sin(FILE* byte_code) {
+void translate_sin(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", SIN);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
-void translate_cos(FILE* byte_code) {
+void translate_cos(FILE* byte_code, Commands_t command) {
     assert(byte_code != NULL);
 
-    fprintf(byte_code, "%d\n", COS);
+    fwrite(&command, sizeof(Commands_t), 1, byte_code);
 }
 
 void wrong_command(const char* command) {

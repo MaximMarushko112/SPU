@@ -11,14 +11,17 @@ CFLAGS=-c -Wall -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfl
 all: Disassembler.exe
 
 
-Disassembler.exe: Disassembler.o Disassembler_funcs.o
+Disassembler.exe: Disassembler.o Disassembler_funcs.o ../Text_funcs.o
 	$(CC) $^ -o $@
 
-Disassembler_funcs.o: Disassembler_funcs.cpp Disassembler_funcs.h
+Disassembler_funcs.o: Disassembler_funcs.cpp Disassembler_funcs.h ../Text_funcs.h
 	$(CC) $(CFLAGS) $<
 
 Disassembler.o: Disassembler.cpp Disassembler_funcs.h
 	$(CC) $(CFLAGS) $<
+
+../Text_funcs.o: ../Text_funcs.cpp ../Text_funcs.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:

@@ -1,6 +1,8 @@
 #ifndef COMMANDS_H_INCLUDED
 #define COMMANDS_H_INCLUDED
 
+typedef Commands_t int;
+
 enum commands {
     HLT = -1,
     PUSH = 17,
@@ -16,5 +18,14 @@ enum commands {
     PUSHR = 33,
     POP = 43
 };
+
+enum registrs {
+    A = 0,
+    B = 1,
+    C = 2,
+    D = 3
+};
+
+const int NREG = 4;
 
 #endif // COMMANDS_H_INCLUDED

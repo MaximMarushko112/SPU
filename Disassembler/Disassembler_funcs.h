@@ -3,13 +3,20 @@
 
 #include <stdio.h>
 
+struct bin {
+    char* bin_file;
+    size_t bin_file_len;
+    size_t id;
+    size_t bin_shift;
+};
+
 int disassembler_translate(const char* input_name, const char* output_name);
 
-int distranslate_push(FILE* byte_code, FILE* assembler_code);
+int distranslate_push(bin* code, FILE* assembler_code);
 
-int distranslate_pushr(FILE* byte_code, FILE* assembler_code);
+int distranslate_pushr(bin* code, FILE* assembler_code);
 
-int distranslate_pop(FILE* byte_code, FILE* assembler_code);
+int distranslate_pop(bin* code, FILE* assembler_code);
 
 void distranslate_in(FILE* assembler_code);
 

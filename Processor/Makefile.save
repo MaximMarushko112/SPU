@@ -8,18 +8,24 @@ CFLAGS=-c -Wall -Wshadow -Winit-self -Wredundant-decls -Wcast-align -Wundef -Wfl
 		  -Wsign-promo -Wstack-usage=8192 -Wstrict-aliasing -Wstrict-null-sentinel -Wtype-limits \
 		  -Wwrite-strings -Werror=vla -D_DEBUG -D_EJUDGE_CLIENT_SIDE
 
-all: Disassembler.exe
+all: Processor.exe
 
 
-Processor.exe: Processor.o Processor_funcs.o Stack.o
+Processor.exe: Processor.o Processor_funcs.o ../Stack.o 
 	$(CC) $^ -o $@
 
-Processor_funcs.o: Processor_funcs.cpp Processor_funcs.h Stack.cpp Stack.h
+Processor_funcs.o: Processor_funcs.cpp Processor_funcs.h ../Commands.h ../Text_funcs.h ../Stack.h
 	$(CC) $(CFLAGS) $<
 
-Processor.o: .cpp Disassembler_funcs.h
+Processor.o: Processor.cpp Processor_funcs.h
 	$(CC) $(CFLAGS) $<
+
+../Stack.o: ../Stack.cpp ../Stack.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
+../Text_funcs.o: ../Text_funcs.cpp ../Text_funcs.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:
-	rm -rf *.o Disassembler.exe
+	rm -rf *.o Processor.exe

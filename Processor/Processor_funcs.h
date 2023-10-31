@@ -7,7 +7,10 @@
 struct SPU {
     struct Stack stack;
     Elem_t registrs[NREG];
-
+    size_t instructions_len;
+    char* instructions;
+    size_t id;
+    size_t bin_shift;
 };
 
 int processing(char* byte_code);
