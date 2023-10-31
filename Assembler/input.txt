@@ -1,16 +1,25 @@
-push 3000
+push 1
+pop rax
+push 2
+pop rbx
 push 3
-div
-push 700
-push 100
-div
-sub
-in
+pop rcx
+push 4
+pop rdx
+pushr rax
+pushr rax
+mul
+pushr rbx
+pushr rbx
+mul
+add
+pushr rcx
+pushr rcx
+mul
+add
+pushr rdx
+pushr rdx
+mul
+add
 out
 HLT
-add
-mul
-sqrt
-sin
-cos
-push 10

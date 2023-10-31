@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "Assembler_funcs.h"
+#include "../Commands.h"
+#include "../Stack.h"
 
 int assembler_translate(const char* input_name, const char* output_name) {
     assert(input_name != NULL);
@@ -15,6 +17,16 @@ int assembler_translate(const char* input_name, const char* output_name) {
     while (fscanf(assembler_code, "%s", command) != EOF) {
         if (strcmp(command, "push") == 0) {
             if (translate_push(assembler_code, byte_code) == 1) {
+                return 1;
+            }
+        }
+        else if (strcmp(command, "pushr") == 0) {
+            if (translate_pushr(assembler_code, byte_code) == 1) {
+                return 1;
+            }
+        }
+        else if (strcmp(command, "pop") == 0) {
+            if (translate_pop(assembler_code, byte_code) == 1) {
                 return 1;
             }
         }
@@ -67,11 +79,55 @@ int translate_push(FILE* assembler_code, FILE* byte_code) {
     assert(assembler_code != NULL);
     assert(byte_code != NULL);
 
-    long x = 0;
-    if (fscanf(assembler_code, "%ld", &x) == 1)
-        fprintf(byte_code, "%d %ld\n", PUSH, x);
+    Elem_t x = 0;
+    if (fscanf(assembler_code, "%lf", &x) == 1)
+        fprintf(byte_code, "%d %lf\n", PUSH, x);
     else {
         wrong_push();
+        return 1;
+    }
+
+    return 0;
+}
+
+int translate_pushr(FILE* assembler_code, FILE* byte_code) {
+    assert(assembler_code != NULL);
+    assert(byte_code != NULL);
+
+    char registr[4] = "";
+    fscanf(assembler_code, "%s", registr);
+    if (strcmp(registr, "rax") == 0)
+        fprintf(byte_code, "%d %d\n", PUSHR, A);
+    else if (strcmp(registr, "rbx") == 0)
+        fprintf(byte_code, "%d %d\n", PUSHR, B);
+    else if (strcmp(registr, "rcx") == 0)
+        fprintf(byte_code, "%d %d\n", PUSHR, C);
+    else if (strcmp(registr, "rdx") == 0)
+        fprintf(byte_code, "%d %d\n", PUSHR, D);
+    else {
+        wrong_pushr();
+        return 1;
+    }
+
+    return 0;
+}
+
+int translate_pop(FILE* assembler_code, FILE* byte_code) {
+    assert(assembler_code != NULL);
+    assert(byte_code != NULL);
+
+    char registr[4] = "";
+    fscanf(assembler_code, "%s", registr);
+    if (strcmp(registr, "rax") == 0)
+        fprintf(byte_code, "%d %d\n", POP, A);
+    else if (strcmp(registr, "rbx") == 0)
+        fprintf(byte_code, "%d %d\n", POP, B);
+    else if (strcmp(registr, "rcx") == 0)
+        fprintf(byte_code, "%d %d\n", POP, C);
+    else if (strcmp(registr, "rdx") == 0)
+        fprintf(byte_code, "%d %d\n", POP, D);
+    else {
+        wrong_pop();
         return 1;
     }
 
@@ -145,5 +201,13 @@ void wrong_command(const char* command) {
 }
 
 void wrong_push() {
-    printf("WRONG PUSH\n");
+    fprintf(stderr, "WRONG PUSH\n");
+}
+
+void wrong_pushr() {
+    fprintf(stderr, "WRONG PUSHR\n");
+}
+
+void wrong_pop() {
+    fprintf(stderr, "WRONG POP\n");
 }

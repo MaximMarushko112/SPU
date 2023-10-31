@@ -3,23 +3,13 @@
 
 #include <stdio.h>
 
-enum commands {
-    HLT = -1,
-    PUSH = 1,
-    IN = 2,
-    OUT = 3,
-    ADD = 4,
-    SUB = 5,
-    MUL = 6,
-    DIV = 7,
-    SQRT = 8,
-    SIN = 9,
-    COS = 10
-};
-
 int disassembler_translate(const char* input_name, const char* output_name);
 
 int distranslate_push(FILE* byte_code, FILE* assembler_code);
+
+int distranslate_pushr(FILE* byte_code, FILE* assembler_code);
+
+int distranslate_pop(FILE* byte_code, FILE* assembler_code);
 
 void distranslate_in(FILE* assembler_code);
 
@@ -46,5 +36,9 @@ void wrong_command(char* str_command);
 void wrong_command_code(int command);
 
 void wrong_push();
+
+void wrong_pop();
+
+void wrong_registr(int registr);
 
 #endif // DISASSEMBLER_FUNCS_H_INCLUDED
