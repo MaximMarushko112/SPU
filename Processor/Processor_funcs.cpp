@@ -136,86 +136,41 @@ void processor_out(struct SPU* SPU) {
     stack_push(&SPU->stack, x);
 }
 
-void processor_add(struct SPU* SPU) {
-    assert(SPU != NULL);
+#define BINARY_OPERATION(name, symbol)                  \
+    void processor_##name(struct SPU* SPU) {            \
+        assert(SPU != NULL);                            \
+                                                        \
+        Elem_t first = 0, second = 0;                   \
+        stack_pop(&SPU->stack, &second);                \
+        stack_pop(&SPU->stack, &first);                 \
+        stack_push(&SPU->stack, first symbol second);   \
+    }
 
-    Elem_t first = 0, second = 0;
-    stack_pop(&SPU->stack, &second);
-    stack_pop(&SPU->stack, &first);
-    stack_push(&SPU->stack, first + second);
-}
+BINARY_OPERATION(add, +)
 
-void processor_sub(struct SPU* SPU) {
-    assert(SPU != NULL);
+BINARY_OPERATION(sub, -)
 
-    Elem_t first = 0, second = 0;
-    stack_pop(&SPU->stack, &second);
-    stack_pop(&SPU->stack, &first);
-    stack_push(&SPU->stack, first - second);
-}
+BINARY_OPERATION(mul, *)
 
-void processor_mul(struct SPU* SPU) {
-    assert(SPU != NULL);
+BINARY_OPERATION(div, /)
 
-    Elem_t first = 0, second = 0;
-    stack_pop(&SPU->stack, &second);
-    stack_pop(&SPU->stack, &first);
-    stack_push(&SPU->stack, first * second);
-}
+#define UNARY_OPERATION(name)                   \
+    void processor_##name(struct SPU* SPU) {    \
+        assert(SPU != NULL);                    \
+                                                \
+        Elem_t first = 0;                       \
+        stack_pop(&SPU->stack, &first);         \
+        stack_push(&SPU->stack, name(first));   \
+    }
 
-void processor_div(struct SPU* SPU) {
-    assert(SPU != NULL);
+UNARY_OPERATION(sqrt)
 
-    Elem_t first = 0, second = 0;
-    stack_pop(&SPU->stack, &second);
-    stack_pop(&SPU->stack, &first);
-    stack_push(&SPU->stack, first / second);
-}
+UNARY_OPERATION(sin)
 
-void processor_sqrt(struct SPU* SPU) {
-    assert(SPU != NULL);
-
-    Elem_t first = 0;
-    stack_pop(&SPU->stack, &first);
-    stack_push(&SPU->stack, sqrt(first));
-}
-
-void processor_sin(struct SPU* SPU) {
-    assert(SPU != NULL);
-
-    Elem_t first = 0;
-    stack_pop(&SPU->stack, &first);
-    stack_push(&SPU->stack, sin(first));
-}
-
-void processor_cos(struct SPU* SPU) {
-    assert(SPU != NULL);
-
-    Elem_t first = 0;
-    stack_pop(&SPU->stack, &first);
-    stack_push(&SPU->stack, cos(first));
-}
-
-void wrong_command(char* str_command) {
-    assert(str_command != NULL);
-
-    printf("WRONG COMMAND: %s\n", str_command);
-}
+UNARY_OPERATION(cos)
 
 void wrong_command_code(int command) {
     assert(command != 0);
 
     printf("WRONG COMMAND: %d\n", command);
-}
-
-void wrong_push() {
-    fprintf(stderr, "WRONG PUSH\n");
-}
-
-void wrong_pushr() {
-    fprintf(stderr, "WRONG PUSHR\n");
-}
-
-void wrong_pop() {
-    fprintf(stderr, "WRONG POP\n");
 }

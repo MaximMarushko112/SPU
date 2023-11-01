@@ -38,14 +38,8 @@ void distranslate_sin(FILE* assembler_code);
 
 void distranslate_cos(FILE* assembler_code);
 
-void wrong_command(char* str_command);
-
 void wrong_command_code(int command);
 
-void wrong_push();
-
-void wrong_pop();
-
-void wrong_registr(int registr);
+void wrong_registr(unsigned char registr);
 
 #endif // DISASSEMBLER_FUNCS_H_INCLUDED

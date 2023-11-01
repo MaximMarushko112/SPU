@@ -39,14 +39,6 @@ void processor_sin(struct SPU* SPU);
 
 void processor_cos(struct SPU* SPU);
 
-void wrong_command(char* str_command);
-
 void wrong_command_code(int command);
-
-void wrong_push();
-
-void wrong_pushr();
-
-void wrong_pop();
 
 #endif // PROCESSOR_FUNCS_H_INCLUDED

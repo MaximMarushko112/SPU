@@ -94,144 +94,72 @@ int distranslate_push(bin* code, FILE* assembler_code) {
     return 0;
 }
 
-int distranslate_pushr(bin* code, FILE* assembler_code) {
-    assert(assembler_code != NULL);
-    assert(code != NULL);
-
-    unsigned char registr = 0;
-    registr = *((Registr_code_t*) (code->bin_file + code->bin_shift));
-    code->id++;
-    code->bin_shift += sizeof(Registr_code_t);
-    switch (registr) {
-        case A:
-            fprintf(assembler_code, "pushr rax\n");
-            break;
-        case B:
-            fprintf(assembler_code, "pushr rbx\n");
-            break;
-        case C:
-            fprintf(assembler_code, "pushr rcx\n");
-            break;
-        case D:
-            fprintf(assembler_code, "pushr rdx\n");
-            break;
-        default:
-            wrong_registr(registr);
-            return 1;
-            break;
+#define REGISTR_DISTRANSLATE(name, command)                                 \
+    int distranslate_##name(bin* code, FILE* assembler_code) {              \
+        assert(assembler_code != NULL);                                     \
+        assert(code != NULL);                                               \
+                                                                            \
+        unsigned char registr = 0;                                          \
+        registr = *((Registr_code_t*) (code->bin_file + code->bin_shift));  \
+        code->id++;                                                         \
+        code->bin_shift += sizeof(Registr_code_t);                          \
+        switch (registr) {                                                  \
+            case A:                                                         \
+                fprintf(assembler_code, "%s rax\n", command);               \
+                break;                                                      \
+            case B:                                                         \
+                fprintf(assembler_code, "%s rbx\n", command);               \
+                break;                                                      \
+            case C:                                                         \
+                fprintf(assembler_code, "%s rcx\n", command);               \
+                break;                                                      \
+            case D:                                                         \
+                fprintf(assembler_code, "%s rdx\n", command);               \
+                break;                                                      \
+            default:                                                        \
+                wrong_registr(registr);                                     \
+                return 1;                                                   \
+                break;                                                      \
+        }                                                                   \
+                                                                            \
+        return 0;                                                           \
     }
 
-    return 0;
-}
+REGISTR_DISTRANSLATE(pushr, "pushr")
 
-int distranslate_pop(bin* code, FILE* assembler_code) {
-    assert(assembler_code != NULL);
-    assert(code != NULL);
+REGISTR_DISTRANSLATE(pop, "pop")
 
-    unsigned char registr = 0;
-    registr = *((Registr_code_t*) (code->bin_file + code->bin_shift));
-    code->id++;
-    code->bin_shift += sizeof(Registr_code_t);
-    switch (registr) {
-        case A:
-            fprintf(assembler_code, "pop rax\n");
-            break;
-        case B:
-            fprintf(assembler_code, "pop rbx\n");
-            break;
-        case C:
-            fprintf(assembler_code, "pop rcx\n");
-            break;
-        case D:
-            fprintf(assembler_code, "pop rdx\n");
-            break;
-        default:
-            wrong_registr(registr);
-            return 1;
-            break;
+#define SIMPLE_DISTRANSLATE(name, command)            \
+    void distranslate_##name(FILE* assembler_code) {  \
+        assert(assembler_code != NULL);               \
+                                                      \
+        fprintf(assembler_code, "%s\n", command);     \
     }
 
-    return 0;
-}
+SIMPLE_DISTRANSLATE(in, "in")
 
-void distranslate_in(FILE* assembler_code) {
-    assert(assembler_code != NULL);
+SIMPLE_DISTRANSLATE(out, "out")
 
-    fprintf(assembler_code, "in\n");
-}
+SIMPLE_DISTRANSLATE(HLT, "HLT")
 
-void distranslate_out(FILE* assembler_code) {
-    assert(assembler_code != NULL);
+SIMPLE_DISTRANSLATE(add, "add")
 
-    fprintf(assembler_code, "out\n");
-}
+SIMPLE_DISTRANSLATE(sub, "sub")
 
-void distranslate_HLT(FILE* assembler_code) {
-    assert(assembler_code != NULL);
+SIMPLE_DISTRANSLATE(mul, "mul")
 
-    fprintf(assembler_code, "HLT\n");
-}
+SIMPLE_DISTRANSLATE(div, "div")
 
-void distranslate_add(FILE* assembler_code) {
-    assert(assembler_code != NULL);
+SIMPLE_DISTRANSLATE(sqrt, "sqrt")
 
-    fprintf(assembler_code, "add\n");
-}
+SIMPLE_DISTRANSLATE(sin, "sin")
 
-void distranslate_sub(FILE* assembler_code) {
-    assert(assembler_code != NULL);
-
-    fprintf(assembler_code, "sub\n");
-}
-
-void distranslate_mul(FILE* assembler_code) {
-    assert(assembler_code != NULL);
-
-    fprintf(assembler_code, "mul\n");
-}
-
-void distranslate_div(FILE* assembler_code) {
-    assert(assembler_code != NULL);
-
-    fprintf(assembler_code, "div\n");
-}
-
-void distranslate_sqrt(FILE* assembler_code) {
-    assert(assembler_code != NULL);
-
-    fprintf(assembler_code, "sqrt\n");
-}
-
-void distranslate_sin(FILE* assembler_code) {
-    assert(assembler_code != NULL);
-
-    fprintf(assembler_code, "sin\n");
-}
-
-void distranslate_cos(FILE* assembler_code) {
-    assert(assembler_code != NULL);
-
-    fprintf(assembler_code, "cos\n");
-}
-
-void wrong_command(char* str_command) {
-    assert(str_command != NULL);
-
-    fprintf(stderr, "WRONG COMMAND: %s\n", str_command);
-}
+SIMPLE_DISTRANSLATE(cos, "cos")
 
 void wrong_command_code(int command) {
     fprintf(stderr, "WRONG COMMAND: %d\n", command);
 }
 
-void wrong_push() {
-    fprintf(stderr, "WRONG PUSH\n");
-}
-
-void wrong_pop() {
-    fprintf(stderr, "WRONG POP\n");
-}
-
-void wrong_registr(int registr) {
+void wrong_registr(unsigned char registr) {
     fprintf(stderr, "WRONG REGISTR: %d\n", registr);
 }
