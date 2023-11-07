@@ -1,0 +1,9 @@
+push 12
+in
+pop rax
+push rax
+push rax
+mul
+add
+out
+HLT

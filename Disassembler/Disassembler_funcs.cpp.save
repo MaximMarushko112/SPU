@@ -17,20 +17,15 @@ int disassembler_translate(const char* input_name, const char* output_name) {
     code.bin_file_len = file_len(byte_code);
     code.bin_file = (char*) calloc(code.bin_file_len, sizeof(char));
     fread(code.bin_file, sizeof(char), code.bin_file_len, byte_code);
-    int command = 0;
 
     while (code.bin_shift < code.bin_file_len) {
+        Commands_t command = {0, 0, 0};
         command = *((Commands_t*) (code.bin_file + code.bin_shift));
         code.id++;
         code.bin_shift += sizeof(Commands_t);
-        switch (command) {
+        switch (command.command) {
         case PUSH:
-            if (distranslate_push(&code, assembler_code) == 1) {
-                return 1;
-            }
-            break;
-        case PUSHR:
-            if (distranslate_pushr(&code, assembler_code) == 1) {
+            if (distranslate_push(&code, assembler_code, &command) == 1) {
                 return 1;
             }
             break;
@@ -81,80 +76,80 @@ int disassembler_translate(const char* input_name, const char* output_name) {
     return 0;
 }
 
-int distranslate_push(bin* code, FILE* assembler_code) {
+int distranslate_push(bin* code, FILE* assembler_code, Commands_t* command) {
     assert(assembler_code != NULL);
     assert(code != NULL);
 
-    Elem_t x = 0;
-    x = *((Elem_t*) (code->bin_file + code->bin_shift));
-    code->id++;
-    code->bin_shift += sizeof(Elem_t);
-    fprintf(assembler_code, "push %lf\n", x);
+    if (command->is_number) {
+        Elem_t x = 0;
+        x = *((Elem_t*) (code->bin_file + code->bin_shift));
+        code->id++;
+        code->bin_shift += sizeof(Elem_t);
+        fprintf(assembler_code, "push %lf\n", x);
+    }
+    else if (command->is_registr) {
+    
+    }
 
     return 0;
 }
 
-#define REGISTR_DISTRANSLATE(name)                                          \
-    int distranslate_##name(bin* code, FILE* assembler_code) {              \
-        assert(assembler_code != NULL);                                     \
-        assert(code != NULL);                                               \
-                                                                            \
-        unsigned char registr = 0;                                          \
-        registr = *((Registr_code_t*) (code->bin_file + code->bin_shift));  \
-        code->id++;                                                         \
-        code->bin_shift += sizeof(Registr_code_t);                          \
-        switch (registr) {                                                  \
-            case A:                                                         \
-                fprintf(assembler_code, "##name rax\n");                    \
-                break;                                                      \
-            case B:                                                         \
-                fprintf(assembler_code, "##name rbx\n");                    \
-                break;                                                      \
-            case C:                                                         \
-                fprintf(assembler_code, "##name rcx\n");                    \
-                break;                                                      \
-            case D:                                                         \
-                fprintf(assembler_code, "##name rdx\n");                    \
-                break;                                                      \
-            default:                                                        \
-                wrong_registr(registr);                                     \
-                return 1;                                                   \
-                break;                                                      \
-        }                                                                   \
-                                                                            \
-        return 0;                                                           \
-    }
+int distranslate_pop(bin* code, FILE* assembler_code) {              
+    assert(assembler_code != NULL);                                     
+    assert(code != NULL);                                               
+                                                                        
+    unsigned char registr = 0;                                          
+    registr = *((Registr_code_t*) (code->bin_file + code->bin_shift));  
+    code->id++;                                                         
+    code->bin_shift += sizeof(Registr_code_t);                          
+    switch (registr) {                                                  
+        case A:                                                         
+            fprintf(assembler_code, "pop rax\n");               
+            break;                                                      
+        case B:                                                         
+            fprintf(assembler_code, "pop rbx\n");               
+            break;                                                      
+        case C:                                                         
+            fprintf(assembler_code, "pop rcx\n");               
+            break;                                                      
+        case D:                                                         
+            fprintf(assembler_code, "pop rdx\n");               
+            break;                                                      
+        default:                                                        
+            wrong_registr(registr);                                     
+            return 1;                                                   
+            break;                                                      
+    }                                                                   
+                                                                            
+    return 0;                                                           
+}
 
-REGISTR_DISTRANSLATE(pushr)
-
-REGISTR_DISTRANSLATE(pop)
-
-#define SIMPLE_DISTRANSLATE(name, command)                     \
+#define SIMPLE_DISTRANSLATE(name, command)            \
     void distranslate_##name(FILE* assembler_code) {  \
         assert(assembler_code != NULL);               \
                                                       \
-        fprintf(assembler_code, "name\n");            \
+        fprintf(assembler_code, "%s\n", command);     \
     }
 
-SIMPLE_DISTRANSLATE("in")
+SIMPLE_DISTRANSLATE(in, "in")
 
-SIMPLE_DISTRANSLATE(out)
+SIMPLE_DISTRANSLATE(out, "out")
 
-SIMPLE_DISTRANSLATE(HLT)
+SIMPLE_DISTRANSLATE(HLT, "HLT")
 
-SIMPLE_DISTRANSLATE(add)
+SIMPLE_DISTRANSLATE(add, "add")
 
-SIMPLE_DISTRANSLATE(sub)
+SIMPLE_DISTRANSLATE(sub, "sub")
 
-SIMPLE_DISTRANSLATE(mul)
+SIMPLE_DISTRANSLATE(mul, "mul")
 
-SIMPLE_DISTRANSLATE(div)
+SIMPLE_DISTRANSLATE(div, "div")
 
-SIMPLE_DISTRANSLATE(sqrt)
+SIMPLE_DISTRANSLATE(sqrt, "sqrt")
 
-SIMPLE_DISTRANSLATE(sin)
+SIMPLE_DISTRANSLATE(sin, "sin")
 
-SIMPLE_DISTRANSLATE(cos)
+SIMPLE_DISTRANSLATE(cos, "cos")
 
 void wrong_command_code(int command) {
     fprintf(stderr, "WRONG COMMAND: %d\n", command);

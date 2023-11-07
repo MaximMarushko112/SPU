@@ -2,10 +2,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+//#include "Assembler_funcs.h"
+
 int main() {
-    char input_name[100] = "";
+    /*char input_name[100] = "";
     char output_name[100] = "";
     scanf("%s %s", input_name, output_name);
-    assembler_translate(input_name, output_name);
+    assembler_translate(input_name, output_name);*/
+    #pragma pack(push, 1)
+    struct Commands_t {
+        unsigned char is_registr : 1;
+        unsigned char is_number  : 1;
+        unsigned char command    : 5;
+    };
+    #pragma pack(pop)
+    printf("%d", sizeof(Commands_t));
     return 0;
 }

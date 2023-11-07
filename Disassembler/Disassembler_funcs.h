@@ -2,6 +2,7 @@
 #define DISASSEMBLER_FUNCS_H_INCLUDED
 
 #include <stdio.h>
+#include "../Commands.h"
 
 struct bin {
     char* bin_file;
@@ -12,9 +13,7 @@ struct bin {
 
 int disassembler_translate(const char* input_name, const char* output_name);
 
-int distranslate_push(bin* code, FILE* assembler_code);
-
-int distranslate_pushr(bin* code, FILE* assembler_code);
+int distranslate_push(bin* code, FILE* assembler_code, Commands_t* command);
 
 int distranslate_pop(bin* code, FILE* assembler_code);
 
@@ -38,7 +37,7 @@ void distranslate_sin(FILE* assembler_code);
 
 void distranslate_cos(FILE* assembler_code);
 
-void wrong_command_code(int command);
+void wrong_command_code(Commands_t* command);
 
 void wrong_registr(unsigned char registr);
 

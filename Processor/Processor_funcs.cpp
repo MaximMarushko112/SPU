@@ -16,20 +16,15 @@ int processing(char* input_name) {
     SPU.instructions_len = file_len(byte_code);
     SPU.instructions = (char*) calloc(SPU.instructions_len, sizeof(char));
     fread(SPU.instructions, sizeof(char), SPU.instructions_len, byte_code);
-    int command = 0;
+    Commands_t command = {0, 0, 0};
 
     while (SPU.bin_shift < SPU.instructions_len) {
         command = *((Commands_t*) (SPU.instructions + SPU.bin_shift));
         SPU.id++;
         SPU.bin_shift += sizeof(Commands_t);
-        switch (command) {
+        switch (command.command) {
             case PUSH:
-                if (processor_push(byte_code, &SPU) == 1) {
-                    return 1;
-                }
-                break;
-            case PUSHR:
-                if (processor_pushr(byte_code, &SPU) == 1) {
+                if (processor_push(byte_code, &SPU, &command) == 1) {
                     return 1;
                 }
                 break;
@@ -69,7 +64,7 @@ int processing(char* input_name) {
                 processor_cos(&SPU);
                 break;
             default:
-                wrong_command_code(command);
+                wrong_command_code(&command);
                 return 1;
                 break;
         }
@@ -79,29 +74,25 @@ int processing(char* input_name) {
     return 0;
 }
 
-int processor_push(FILE* byte_code, struct SPU* SPU) {
+int processor_push(FILE* byte_code, struct SPU* SPU, Commands_t* command) {
     assert(byte_code != NULL);
     assert(SPU != NULL);
+    assert(command != NULL);
 
-    Elem_t x = 0;
-    x = *((Elem_t*) (SPU->instructions + SPU->bin_shift));
-    SPU->id++;
-    SPU->bin_shift += sizeof(Elem_t);
-    stack_push(&SPU->stack, x);
-
-    return 0;
-}
-
-int processor_pushr(FILE* byte_code, struct SPU* SPU) {
-    assert(byte_code != NULL);
-    assert(SPU != NULL);
-
-    unsigned char registr = 0;
-    registr = *((Registr_code_t*) (SPU->instructions + SPU->bin_shift));
-    SPU->id++;
-    SPU->bin_shift += sizeof(Registr_code_t);
-    stack_push(&SPU->stack, SPU->registrs[registr]);
-
+    if (command->is_number) {
+        Elem_t x = 0;
+        x = *((Elem_t*) (SPU->instructions + SPU->bin_shift));
+        SPU->id++;
+        SPU->bin_shift += sizeof(Elem_t);
+        stack_push(&SPU->stack, x);
+    }
+    else if (command->is_registr) {
+        unsigned char registr = 0;
+        registr = *((Registr_code_t*) (SPU->instructions + SPU->bin_shift));
+        SPU->id++;
+        SPU->bin_shift += sizeof(Registr_code_t);
+        stack_push(&SPU->stack, SPU->registrs[registr]);
+    }
     return 0;
 }
 
@@ -169,8 +160,8 @@ UNARY_OPERATION(sin)
 
 UNARY_OPERATION(cos)
 
-void wrong_command_code(int command) {
-    assert(command != 0);
+void wrong_command_code(Commands_t* command) {
+    assert(command != NULL);
 
-    printf("WRONG COMMAND: %d\n", command);
+    printf("WRONG COMMAND: %d\n", command->command);
 }

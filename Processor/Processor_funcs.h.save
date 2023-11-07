@@ -3,7 +3,6 @@
 
 #include "../Commands.h"
 #include "../Stack.h"
-#include "../Text_funcs.h"
 
 struct SPU {
     struct Stack stack;
@@ -11,7 +10,7 @@ struct SPU {
     size_t instructions_len;
     char* instructions;
     size_t id;
-    size_t 
+    size_t bin_shift;        //ip
 };
 
 int processing(char* byte_code);
@@ -40,14 +39,6 @@ void processor_sin(struct SPU* SPU);
 
 void processor_cos(struct SPU* SPU);
 
-void wrong_command(char* str_command);
-
-void wrong_command_code(int command);
-
-void wrong_push();
-
-void wrong_pushr();
-
-void wrong_pop();
+void wrong_command_code(Commands_t command);
 
 #endif // PROCESSOR_FUNCS_H_INCLUDED

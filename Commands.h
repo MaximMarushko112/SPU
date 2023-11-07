@@ -1,12 +1,17 @@
 #ifndef COMMANDS_H_INCLUDED
 #define COMMANDS_H_INCLUDED
 
-typedef int Commands_t;
 typedef unsigned char Registr_code_t;
 
+struct Commands_t {
+    unsigned char is_registr : 1;
+    unsigned char is_number : 1;
+    unsigned char command : 5;
+};
+
 enum commands {
-    HLT = -1,
-    PUSH = 17,
+    HLT = 31,
+    PUSH = 1,
     IN = 2,
     OUT = 3,
     ADD = 4,
@@ -16,8 +21,7 @@ enum commands {
     SQRT = 8,
     SIN = 9,
     COS = 10,
-    PUSHR = 33,
-    POP = 43
+    POP = 11
 };
 
 enum registrs {
